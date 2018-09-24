@@ -20,6 +20,7 @@ function PositionToStr (pos) {
 // Create a new grid within the window.
 function CreateTable (parent) {
     var table = $("<table>");
+    table.addClass ("spreadsheet")
 
     table.appendTo (parent);
 
@@ -29,17 +30,17 @@ function CreateTable (parent) {
 // Create top table row and add to parent.
 function InsertTableHeading (parent) {
     var row = $("<tr>");
-    row.addClass ("heading-row");
+    row.addClass ("spreadsheet");
 
     var heading      = $("<th>");
-    heading.addClass ("heading");
+    heading.addClass ("spreadsheet");
     heading.appendTo (row);
 
             // Create the initial header row.
     for (x = 0; x < 100; ++x)
     {
         var heading      = $("<th>");
-        heading.addClass ("heading");
+        heading.addClass ("spreadsheet");
     
                     // Convert for loop position to ASCII characters from A..ZZ
         var headerText   = PositionToStr (x);

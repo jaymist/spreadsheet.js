@@ -1,0 +1,10 @@
+table.spreadsheet {
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+th.spreadsheet {
+    min-width: 100px;
+    background-color: lightgreen;
+    border: 1px solid darkgreen;
+}
