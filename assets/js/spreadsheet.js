@@ -6,6 +6,18 @@ var gCharCount  = 26;
 var gValueDict  = {};               // Global store of cell id vs. cell content
 
 //-----------------------------------------------------------------------------
+// MENU METHODS
+// This section contains functions to generate the initial menu.
+//-----------------------------------------------------------------------------
+function CreateMenu (parent) {
+    var refreshButton  = $("<button>");
+    refreshButton.text ("Refresh");
+    refreshButton.on   ("click", RefreshButtonClick);
+
+    refreshButton.appendTo (parent);
+};
+
+//-----------------------------------------------------------------------------
 // TABLE METHODS
 // This section contains functions to generate the initial table.
 //-----------------------------------------------------------------------------
@@ -113,6 +125,7 @@ function CellMouseClick () {
     var cellId = this.id;
     var cell   = $("#" + cellId);
     cell.attr  ("contenteditable", "true");
+
     cell.on    ("keyup", function (e) {
         var cellId  = this.id;
         var cell    = $("#" + cellId);
@@ -131,18 +144,40 @@ function CellMouseClick () {
         cell.text   (content);              // Set cell content to trimmed string
         cell.removeAttr ("contenteditable"); // Make sure the cell is no longer editable
 
-        gValueDict[cellId] = content;
+        gValueDict[cell.attr ("id")] = content;
     });
     cell.focus ();
+};
+
+// When the refresh button is clicked, refresh the grid and restore saved values
+function RefreshButtonClick () {
+            // Remove the current grid - is this a bit heavy-handed?
+    var tableDiv   = $("#table-div");
+    tableDiv.empty ();
+    CreateTable    (tableDiv);
+
+            // Iterate over stashed values and insert into grid
+    $.each (gValueDict, function (key, value) {
+        var cell  = $("#" + key);
+        cell.text (value);
+    });
 };
 
 //-----------------------------------------------------------------------------
 // MAIN ENTRY POINT
 //-----------------------------------------------------------------------------
 $(document).ready (function () {
+            // Add menu bar div with useful buttons.
+    var menuDiv      = $("<div>");
+
+    menuDiv.attr     ("id", "menu-div");
+    menuDiv.appendTo ($("body"));
+
+    CreateMenu (menuDiv);
+
             // When the document is ready, let's create the grid.
             // Let's add a 'div' to contain the table.
-    var tableDiv = $("<div/>");
+    var tableDiv      = $("<div/>");
 
     tableDiv.attr     ("id", "table-div");
     tableDiv.appendTo ($("body"));
