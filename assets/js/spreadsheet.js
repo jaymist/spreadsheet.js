@@ -101,6 +101,29 @@ function InsertTableBody (parent) {
     }
 }
 
+// Check if the cell contains a formula and, if it does, attempt to apply it.
+function CalculateResult (content) {
+    if (!content.startsWith ("="))
+        return content;
+
+    var equation = content.substr (1);      // remove the leading '=' symbol.
+
+    while ((res = equation.match (/(\w+\d+)/)))
+    {
+        var key = res[1];
+        var value = $("#" + key).text ();
+
+        if (!value)
+            return "#ERROR";
+        
+                // Update equation, replacing cell id with cell value;
+        equation = equation.replace (key, value);
+        console.log (equation);
+    }
+
+    return eval (equation);
+};
+
 //-----------------------------------------------------------------------------
 // CALLBACKS
 // Callbacks for events on the spreadsheet.
@@ -139,12 +162,12 @@ function CellMouseClick () {
 
         cell.removeClass ("sheet-edited");
         
-        var content = cell.text ();
-        content     = $.trim (content);     // Remove trailing newline
-        cell.text   (content);              // Set cell content to trimmed string
-        cell.removeAttr ("contenteditable"); // Make sure the cell is no longer editable
+        var content     = cell.text ();
+        content         = $.trim (content);             // Remove trailing newline
+        cell.text       (CalculateResult (content));    // Set cell content to trimmed string
+        cell.removeAttr ("contenteditable");            // Make sure the cell is no longer editable
 
-        gValueDict[cell.attr ("id")] = content;
+        gValueDict[cell.attr ("id")] = content;         // Store original content, *NOT* calculated content
     });
     cell.focus ();
 };
