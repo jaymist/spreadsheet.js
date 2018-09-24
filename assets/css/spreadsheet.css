@@ -3,9 +3,14 @@ table.spreadsheet {
     border-collapse: collapse;
 }
 
-.spreadsheet {
+td.spreadsheet {
     min-width: 100px;
     border: 1px solid;
+}
+
+td.spreadsheet-enter {
+    min-width: 100px;
+    border: 2px solid;
 }
 
 td.sheet-heading, th.sheet-heading {

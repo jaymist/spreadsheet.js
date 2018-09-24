@@ -76,14 +76,35 @@ function InsertTableBody (parent) {
             else
             {
                 elem.attr ("id", PositionToStr (x - 1) + y);
+                elem.on ("mouseenter", CellMouseEnter)
+                elem.on ("mouseleave", CellMouseLeave)
             }
 
             elem.addClass ("spreadsheet");
-            elem.appendTo (row);    
+            elem.appendTo (row);
         }
         row.appendTo (parent);
     }
 }
+
+//-----------------------------------------------------------------------------
+// CALLBACKS
+// Callbacks for events on the spreadsheet.
+//-----------------------------------------------------------------------------
+
+// When the mouse enters a cell, thicken the border
+function CellMouseEnter () {
+    var cellId = this.id;
+    var cell   = $("#" + cellId);
+    cell.addClass ("spreadsheet-enter");
+};
+
+// When the mouse enters a cell, thicken the border
+function CellMouseLeave () {
+    var cellId = this.id;
+    var cell   = $("#" + cellId);
+    cell.removeClass ("spreadsheet-enter");
+};
 
 //-----------------------------------------------------------------------------
 // MAIN ENTRY POINT
