@@ -4,6 +4,10 @@
 var gCharCodeA  = "A".charCodeAt (); // Comes out as '65'
 var gCharCount  = 26;
 
+//-----------------------------------------------------------------------------
+// TABLE METHODS
+// This section contains functions to generate the initial table.
+//-----------------------------------------------------------------------------
 function PositionToStr (pos) {
     var remainder   = pos % gCharCount;
     var quotient    = Math.floor (pos / gCharCount );
@@ -25,6 +29,7 @@ function CreateTable (parent) {
     table.appendTo (parent);
 
     InsertTableHeading (table);
+    InsertTableBody    (table);
 };
 
 // Create top table row and add to parent.
@@ -33,24 +38,51 @@ function InsertTableHeading (parent) {
     row.addClass ("spreadsheet");
 
     var heading      = $("<th>");
-    heading.addClass ("spreadsheet");
+    heading.addClass ("sheet-heading");
     heading.appendTo (row);
 
             // Create the initial header row.
     for (x = 0; x < 100; ++x)
     {
         var heading      = $("<th>");
-        heading.addClass ("spreadsheet");
+        heading.addClass ("sheet-heading");
     
                     // Convert for loop position to ASCII characters from A..ZZ
         var headerText   = PositionToStr (x);
-        console.log      ("Character string: %s", headerText);
-
         heading.text     (headerText);
         heading.appendTo (row);
     }
 
     row.appendTo (parent);
+}
+
+// Create table body and add to parent.
+function InsertTableBody (parent) {
+            // Create the initial header row.
+    for (y = 1; y < 101; ++y)
+    {
+        var row = $("<tr>");
+        row.addClass ("spreadsheet");
+    
+        for (x = 0; x < 101; ++x)
+        {
+            var elem = $("<td>");
+
+            if (x == 0)
+            {
+                elem.addClass ("sheet-heading")
+                elem.text (y);
+            }
+            else
+            {
+                elem.attr ("id", PositionToStr (x - 1) + y);
+            }
+
+            elem.addClass ("spreadsheet");
+            elem.appendTo (row);    
+        }
+        row.appendTo (parent);
+    }
 }
 
 //-----------------------------------------------------------------------------

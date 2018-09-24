@@ -3,7 +3,12 @@ table.spreadsheet {
     border-collapse: collapse;
 }
 
-th.spreadsheet {
+.spreadsheet {
+    min-width: 100px;
+    border: 1px solid;
+}
+
+td.sheet-heading, th.sheet-heading {
     min-width: 100px;
     background-color: lightgreen;
     border: 1px solid darkgreen;
