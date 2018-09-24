@@ -76,8 +76,9 @@ function InsertTableBody (parent) {
             else
             {
                 elem.attr ("id", PositionToStr (x - 1) + y);
-                elem.on ("mouseenter", CellMouseEnter)
-                elem.on ("mouseleave", CellMouseLeave)
+                elem.on ("mouseenter", CellMouseEnter);
+                elem.on ("mouseleave", CellMouseLeave);
+                elem.on ("click",      CellMouseClick);
             }
 
             elem.addClass ("spreadsheet");
@@ -104,6 +105,14 @@ function CellMouseLeave () {
     var cellId = this.id;
     var cell   = $("#" + cellId);
     cell.removeClass ("spreadsheet-enter");
+};
+
+// When a cell is clicked, make it editable
+function CellMouseClick () {
+    var cellId = this.id;
+    var cell   = $("#" + cellId);
+    cell.attr  ("contenteditable", "true");
+    cell.focus ();
 };
 
 //-----------------------------------------------------------------------------
