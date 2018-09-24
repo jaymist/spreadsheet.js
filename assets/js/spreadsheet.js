@@ -3,6 +3,7 @@
 //-----------------------------------------------------------------------------
 var gCharCodeA  = "A".charCodeAt (); // Comes out as '65'
 var gCharCount  = 26;
+var gValueDict  = {};               // Global store of cell id vs. cell content
 
 //-----------------------------------------------------------------------------
 // TABLE METHODS
@@ -112,6 +113,26 @@ function CellMouseClick () {
     var cellId = this.id;
     var cell   = $("#" + cellId);
     cell.attr  ("contenteditable", "true");
+    cell.on    ("keyup", function (e) {
+        var cellId  = this.id;
+        var cell    = $("#" + cellId);
+        var code    = e.which;
+
+        cell.addClass ("sheet-edited");
+
+                // Don't need to do anything until the user hits enter
+        if (code != 13)
+            return;
+
+        cell.removeClass ("sheet-edited");
+        
+        var content = cell.text ();
+        content     = $.trim (content);     // Remove trailing newline
+        cell.text   (content);              // Set cell content to trimmed string
+        cell.removeAttr ("contenteditable"); // Make sure the cell is no longer editable
+
+        gValueDict[cellId] = content;
+    });
     cell.focus ();
 };
 

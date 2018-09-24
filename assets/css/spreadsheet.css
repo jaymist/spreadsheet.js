@@ -13,6 +13,10 @@ td.spreadsheet-enter {
     border: 2px solid;
 }
 
+td.sheet-edited {
+    border: 2px solid red;
+}
+
 td.sheet-heading, th.sheet-heading {
     min-width: 100px;
     background-color: lightgreen;
