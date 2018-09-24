@@ -153,21 +153,17 @@ function CellMouseClick () {
         var cellId  = this.id;
         var cell    = $("#" + cellId);
         var code    = e.which;
-
-        cell.addClass ("sheet-edited");
+        var content = cell.text ();
+        
+        gValueDict[cell.attr ("id")] = content;         // Store original content, *NOT* calculated content
 
                 // Don't need to do anything until the user hits enter
         if (code != 13)
             return;
 
-        cell.removeClass ("sheet-edited");
-        
-        var content     = cell.text ();
         content         = $.trim (content);             // Remove trailing newline
         cell.text       (CalculateResult (content));    // Set cell content to trimmed string
         cell.removeAttr ("contenteditable");            // Make sure the cell is no longer editable
-
-        gValueDict[cell.attr ("id")] = content;         // Store original content, *NOT* calculated content
     });
     cell.focus ();
 };
