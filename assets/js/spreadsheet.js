@@ -220,7 +220,7 @@ function RefreshButtonClick () {
             // Iterate over stashed values and insert into grid
     $.each (gValueDict, function (key, value) {
         var cell  = $("#" + key);
-        cell.text (value);
+        cell.text (CalculateResult (value, cell));
     });
 };
 
