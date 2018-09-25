@@ -5,6 +5,11 @@ var gCharCodeA  = "A".charCodeAt (); // Comes out as '65'
 var gCharCount  = 26;
 var gValueDict  = {};               // Global store of cell id vs. cell content
 
+// Dictionary of cells that have formulas that point to them.
+// This is used when a cell is updated, to determin which
+// other cells reference them (via a formula) and need updating
+var gReferences = {};
+
 //-----------------------------------------------------------------------------
 // MENU METHODS
 // This section contains functions to generate the initial menu.
@@ -102,7 +107,7 @@ function InsertTableBody (parent) {
 }
 
 // Check if the cell contains a formula and, if it does, attempt to apply it.
-function CalculateResult (content) {
+function CalculateResult (content, cell) {
     if (!content.startsWith ("="))
         return content;
 
@@ -116,6 +121,13 @@ function CalculateResult (content) {
         if (!value)
             return "#ERROR";
         
+                // Check if the key is already in our global set and if not,
+                // initialise it.
+        if (!gReferences[key])
+            gReferences[key] = new Set ();
+
+        gReferences[key].add (cell.attr ("id"));
+
                 // Update equation, replacing cell id with cell value;
         equation = equation.replace (res[1], value);
     }
@@ -160,9 +172,10 @@ function CellMouseClick () {
         if (code != 13)
             return;
 
-        content         = $.trim (content);             // Remove trailing newline
-        cell.text       (CalculateResult (content));    // Set cell content to trimmed string
-        cell.removeAttr ("contenteditable");            // Make sure the cell is no longer editable
+        cell.removeAttr  ("contenteditable");                // Make sure the cell is no longer editable
+        content          = $.trim (content);                 // Remove trailing newline
+        cell.text        (CalculateResult (content, cell));  // Set cell content to trimmed string
+        UpdateReferences (cell);
     });
     cell.focus ();
 };
