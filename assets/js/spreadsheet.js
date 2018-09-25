@@ -148,7 +148,7 @@ function CellMouseClick () {
     var cell   = $("#" + cellId);
     cell.attr  ("contenteditable", "true");
 
-    cell.on    ("keyup", function (e) {
+    cell.on    ("keydown", function (e) {
         var cellId  = this.id;
         var cell    = $("#" + cellId);
         var code    = e.which;
