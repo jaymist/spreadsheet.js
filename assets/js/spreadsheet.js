@@ -108,17 +108,16 @@ function CalculateResult (content) {
 
     var equation = content.substr (1);      // remove the leading '=' symbol.
 
-    while ((res = equation.match (/(\w+\d+)/)))
+    while ((res = equation.match (/([A-Za-z]+\d+)/)))
     {
-        var key = res[1];
+        var key   = res[1].toUpperCase ();
         var value = $("#" + key).text ();
 
         if (!value)
             return "#ERROR";
         
                 // Update equation, replacing cell id with cell value;
-        equation = equation.replace (key, value);
-        console.log (equation);
+        equation = equation.replace (res[1], value);
     }
 
     return eval (equation);
