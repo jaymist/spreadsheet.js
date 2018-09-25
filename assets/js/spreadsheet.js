@@ -106,6 +106,36 @@ function InsertTableBody (parent) {
     }
 }
 
+// Find any references to the updated cell and recalculate their content.
+function UpdateReferences (updatedCell) {
+    var references = gReferences[updatedCell.attr ("id")];
+
+            // If we don't have any references to the caller, return early.
+    if (!references || references.length === 0)
+        return;
+
+            // Otherwise iterate over the references, get the value stored in
+            // memory and update the result.
+    references.forEach (id => {
+        var inMemVal = gValueDict[id];
+        if (!inMemVal)
+        {
+            console.error ("Invalid in-memory value for cell: %s", id);
+            return;
+        }
+
+        var cell = $("#" + id);
+        if (!cell)
+        {
+            console.error ("Unable to update cell, invalid id: %s", id);
+            return;
+        }
+
+        var val = CalculateResult (inMemVal, cell);
+        cell.text (val);
+    });
+};
+
 // Check if the cell contains a formula and, if it does, attempt to apply it.
 function CalculateResult (content, cell) {
     if (!content.startsWith ("="))
