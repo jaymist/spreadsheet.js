@@ -77,19 +77,21 @@ Grid.prototype.UpdateReferences = function (key) {
     references.forEach (id => {
         var equation = this.mEquations[id];
         if (!equation)
-        {
-            console.error ("Invalid in-memory value for cell: %s", id);
             return;
-        }
 
         var cell = $("#" + id);
         if (!cell)
-        {
-            console.error ("Unable to update cell, invalid id: %s", id);
             return;
-        }
 
         var val = this.EvaluateEquation (key, equation);
         cell.text (val);
     });
 }
+
+Grid.prototype.RefreshValues = function () {
+        // Iterate over stashed values and insert into grid
+    $.each (this.mValues, function (key, value) {
+        var cell  = $("#" + key);
+        cell.text (value);
+    });
+};

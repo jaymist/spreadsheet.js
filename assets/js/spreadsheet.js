@@ -3,12 +3,7 @@
 //-----------------------------------------------------------------------------
 var gCharCodeA  = "A".charCodeAt (); // Comes out as '65'
 var gCharCount  = 26;
-var gValueDict  = {};               // Global store of cell id vs. cell content
-
-// Dictionary of cells that have formulas that point to them.
-// This is used when a cell is updated, to determin which
-// other cells reference them (via a formula) and need updating
-var gReferences = {};
+var grid;
 
 //-----------------------------------------------------------------------------
 // MENU METHODS
@@ -132,9 +127,8 @@ function CellMouseClick () {
     cell.attr  ("contenteditable", "true");
     cell.focus ();
 
-    cell.on    ("keydown", function (e) {
-        grid.StoreValue (cell);
-
+    cell.on ("keydown", function (e) {
+        console.info ("In keydown handler");
         var keyCode = e.which;
 
         if (keyCode != 13)
@@ -142,6 +136,11 @@ function CellMouseClick () {
         
         cell.removeAttr ("contenteditable");
         grid.SetValue (cell);
+    });
+
+    cell.on ("keyup", function () {
+        console.info ("In keyup handler");
+        grid.StoreValue (cell);
     });
 };
 
@@ -152,18 +151,12 @@ function RefreshButtonClick () {
     tableDiv.empty ();
     CreateTable    (tableDiv);
 
-            // Iterate over stashed values and insert into grid
-    $.each (gValueDict, function (key, value) {
-        var cell  = $("#" + key);
-        cell.text (CalculateResult (value, cell));
-    });
+    grid.RefreshValues ();
 };
 
 //-----------------------------------------------------------------------------
 // MAIN ENTRY POINT
 //-----------------------------------------------------------------------------
-
-var grid;
 
 $(document).ready (function () {
     grid = new Grid ();
