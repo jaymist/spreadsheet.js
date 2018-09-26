@@ -7,6 +7,30 @@ function Grid () {
     this.mReferences = {};
 };
 
+Grid.prototype.SetValue = function (cell) {
+            // Get the cell's id and content
+    var key = this.GetId (cell);
+    var content = cell.text ();
+
+    value = this.CalculateValue (key, content);
+    cell.text (value);
+
+    this.UpdateReferences (key);
+};
+
+Grid.prototype.CalculateValue = function (key, content) {
+    if (!content.startsWith ("="))
+    {
+        this.mValues[key] = content;
+        return content;
+    }
+    else
+    {
+        this.mEquations[key] = content;
+        return this.EvaluateEquation (key, content);
+    }
+};
+
 Grid.prototype.GetId = function (cell) {
     if (typeof cell === "string")
         return cell
@@ -40,27 +64,7 @@ Grid.prototype.EvaluateEquation = function (cell, content) {
     return eval (equation);
 };
 
-Grid.prototype.CalculateValue = function (cell, content) {
-            // If the content doesn't start with an '=' sign, assume it's a value.
-    var key = this.GetId (cell);
-
-    if (!content.startsWith ("="))
-    {
-        console.log ("Storing value: %s", content);
-        this.mValues[key] = content;
-        return content;
-    }
-    else
-    {
-        console.log ("Storing equation: %s", content);
-        this.mEquations[key] = content;
-        return this.EvaluateEquation (key, content);
-    }
-};
-
-Grid.prototype.UpdateReferences = function (modifiedCell) {
-    var key = this.GetId (modifiedCell);
-
+Grid.prototype.UpdateReferences = function (key) {
     var references = this.mReferences[key];
 
             // If we don't have any references to the caller, return early.

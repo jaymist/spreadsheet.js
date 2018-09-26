@@ -132,22 +132,8 @@ function CellMouseClick () {
     cell.attr  ("contenteditable", "true");
     cell.focus ();
 
-    cell.on    ("keydown", function (e) {
-        var cellId  = this.id;
-        var cell    = $("#" + cellId);
-        var code    = e.which;
-        var content = cell.text ();
-        
-        gValueDict[cell.attr ("id")] = content;         // Store original content, *NOT* calculated content
-
-                // Don't need to do anything until the user hits enter
-        if (code != 13)
-            return;
-
-        cell.removeAttr  ("contenteditable");                // Make sure the cell is no longer editable
-        content          = $.trim (content);                 // Remove trailing newline
-        cell.text        (grid.CalculateValue (cell, content));  // Set cell content to trimmed string
-        grid.UpdateReferences (cell);
+    cell.on    ("keydown", function () {
+        grid.SetValue (cell);
     });
 };
 
