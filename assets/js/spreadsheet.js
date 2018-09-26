@@ -106,65 +106,6 @@ function InsertTableBody (parent) {
     }
 }
 
-// Find any references to the updated cell and recalculate their content.
-function UpdateReferences (updatedCell) {
-    var references = gReferences[updatedCell.attr ("id")];
-
-            // If we don't have any references to the caller, return early.
-    if (!references || references.length === 0)
-        return;
-
-            // Otherwise iterate over the references, get the value stored in
-            // memory and update the result.
-    references.forEach (id => {
-        var inMemVal = gValueDict[id];
-        if (!inMemVal)
-        {
-            console.error ("Invalid in-memory value for cell: %s", id);
-            return;
-        }
-
-        var cell = $("#" + id);
-        if (!cell)
-        {
-            console.error ("Unable to update cell, invalid id: %s", id);
-            return;
-        }
-
-        var val = CalculateResult (inMemVal, cell);
-        cell.text (val);
-    });
-};
-
-// Check if the cell contains a formula and, if it does, attempt to apply it.
-function CalculateResult (content, cell) {
-    if (!content.startsWith ("="))
-        return content;
-
-    var equation = content.substr (1);      // remove the leading '=' symbol.
-
-    while ((res = equation.match (/([A-Za-z]+\d+)/)))
-    {
-        var key   = res[1].toUpperCase ();
-        var value = $("#" + key).text ();
-
-        if (!value)
-            return "#ERROR";
-        
-                // Check if the key is already in our global set and if not,
-                // initialise it.
-        if (!gReferences[key])
-            gReferences[key] = new Set ();
-
-        gReferences[key].add (cell.attr ("id"));
-
-                // Update equation, replacing cell id with cell value;
-        equation = equation.replace (res[1], value);
-    }
-
-    return eval (equation);
-};
-
 //-----------------------------------------------------------------------------
 // CALLBACKS
 // Callbacks for events on the spreadsheet.
@@ -189,6 +130,7 @@ function CellMouseClick () {
     var cellId = this.id;
     var cell   = $("#" + cellId);
     cell.attr  ("contenteditable", "true");
+    cell.focus ();
 
     cell.on    ("keydown", function (e) {
         var cellId  = this.id;
@@ -204,10 +146,9 @@ function CellMouseClick () {
 
         cell.removeAttr  ("contenteditable");                // Make sure the cell is no longer editable
         content          = $.trim (content);                 // Remove trailing newline
-        cell.text        (CalculateResult (content, cell));  // Set cell content to trimmed string
-        UpdateReferences (cell);
+        cell.text        (grid.CalculateValue (cell, content));  // Set cell content to trimmed string
+        grid.UpdateReferences (cell);
     });
-    cell.focus ();
 };
 
 // When the refresh button is clicked, refresh the grid and restore saved values
@@ -227,7 +168,13 @@ function RefreshButtonClick () {
 //-----------------------------------------------------------------------------
 // MAIN ENTRY POINT
 //-----------------------------------------------------------------------------
+
+var grid;
+
 $(document).ready (function () {
+    grid = new Grid ();
+    console.log (grid);
+
             // Add menu bar div with useful buttons.
     var menuDiv      = $("<div>");
 

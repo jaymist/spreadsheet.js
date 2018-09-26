@@ -7,17 +7,12 @@ function Grid () {
     this.mReferences = {};
 };
 
-Grid.prototype.AddValue = function (key, value) {
-    this.mValues.key = value;
-};
-
-Grid.prototype.AqqEquation = function (key, value) {
-    this.mEquations.key = value;
-};
-
-Grid.prototype.AddReference = function (key, value) {
-    this.mReferences.key = value;
-};
+Grid.prototype.GetId = function (cell) {
+    if (typeof cell === "string")
+        return cell
+    
+    return cell.attr ("id");
+}
 
 Grid.prototype.EvaluateEquation = function (cell, content) {
     console.log ("Evaluating equation.");
@@ -47,12 +42,7 @@ Grid.prototype.EvaluateEquation = function (cell, content) {
 
 Grid.prototype.CalculateValue = function (cell, content) {
             // If the content doesn't start with an '=' sign, assume it's a value.
-    var key;
-
-    if (typeof cell != "string")
-        key = cell.attr ("id");
-    else
-        key = cell;
+    var key = this.GetId (cell);
 
     if (!content.startsWith ("="))
     {
@@ -67,3 +57,34 @@ Grid.prototype.CalculateValue = function (cell, content) {
         return this.EvaluateEquation (key, content);
     }
 };
+
+Grid.prototype.UpdateReferences = function (modifiedCell) {
+    var key = this.GetId (modifiedCell);
+
+    var references = this.mReferences[key];
+
+            // If we don't have any references to the caller, return early.
+    if (!references || references.length == 0)
+        return;
+
+            // Otherwise iterate over the references, get the value stored in
+            // memory and update the result.
+    references.forEach (id => {
+        var equation = this.mEquations[id];
+        if (!equation)
+        {
+            console.error ("Invalid in-memory value for cell: %s", id);
+            return;
+        }
+
+        var cell = $("#" + id);
+        if (!cell)
+        {
+            console.error ("Unable to update cell, invalid id: %s", id);
+            return;
+        }
+
+        var val = this.CalculateValue (cell, equation);
+        cell.text (val);
+    });
+}
