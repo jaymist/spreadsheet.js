@@ -1,34 +1,10 @@
 function Grid () {
             // Map of cells to literal values
-    this.mValues    = {};
+    this.mValues     = {};
             // Map of cells to content that look like an equation
-    this.mEquations = {};
+    this.mEquations  = {};
             // Map of cells that referenced in an equation.
     this.mReferences = {};
-};
-
-Grid.prototype.SetValue = function (cell) {
-            // Get the cell's id and content
-    var key = this.GetId (cell);
-    var content = cell.text ();
-
-    value = this.CalculateValue (key, content);
-    cell.text (value);
-
-    this.UpdateReferences (key);
-};
-
-Grid.prototype.CalculateValue = function (key, content) {
-    if (!content.startsWith ("="))
-    {
-        this.mValues[key] = content;
-        return content;
-    }
-    else
-    {
-        this.mEquations[key] = content;
-        return this.EvaluateEquation (key, content);
-    }
 };
 
 Grid.prototype.GetId = function (cell) {
@@ -38,8 +14,33 @@ Grid.prototype.GetId = function (cell) {
     return cell.attr ("id");
 }
 
+Grid.prototype.StoreValue = function (cell) {
+            // Get the cell's id and content
+    var key     = this.GetId (cell);
+    var content = cell.text ();
+
+    if (!content.startsWith ("="))
+    {
+        this.mValues[key] = content;
+    }
+    else
+    {
+        this.mEquations[key] = content;
+        this.mValues[key]    = this.EvaluateEquation (key, content);
+    }
+
+            // Returns the key of the cell that's been updated.
+    return key;
+};
+
+Grid.prototype.SetValue = function (cell) {
+    var key = this.StoreValue (cell);
+    cell.text (this.mValues[key]);
+
+    this.UpdateReferences (key);
+};
+
 Grid.prototype.EvaluateEquation = function (cell, content) {
-    console.log ("Evaluating equation.");
     var equation = content.substr (1);      // remove the leading '=' symbol.
 
     while ((res = equation.match (/([A-Za-z]+\d+)/)))
@@ -88,7 +89,7 @@ Grid.prototype.UpdateReferences = function (key) {
             return;
         }
 
-        var val = this.CalculateValue (cell, equation);
+        var val = this.EvaluateEquation (key, equation);
         cell.text (val);
     });
 }

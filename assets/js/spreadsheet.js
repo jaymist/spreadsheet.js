@@ -132,7 +132,15 @@ function CellMouseClick () {
     cell.attr  ("contenteditable", "true");
     cell.focus ();
 
-    cell.on    ("keydown", function () {
+    cell.on    ("keydown", function (e) {
+        grid.StoreValue (cell);
+
+        var keyCode = e.which;
+
+        if (keyCode != 13)
+            return;
+        
+        cell.removeAttr ("contenteditable");
         grid.SetValue (cell);
     });
 };
