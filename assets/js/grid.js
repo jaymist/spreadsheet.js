@@ -1,8 +1,8 @@
 function Grid () {
             // Map of cells to literal values
-    this.mValues    = {};
+    this.mValues     = {};
             // Map of cells to content that look like an equation
-    this.mEquations = {};
+    this.mEquations  = {};
             // Map of cells that referenced in an equation.
     this.mReferences = {};
 };
@@ -14,8 +14,33 @@ Grid.prototype.GetId = function (cell) {
     return cell.attr ("id");
 }
 
+Grid.prototype.StoreValue = function (cell) {
+            // Get the cell's id and content
+    var key     = this.GetId (cell);
+    var content = cell.text ();
+
+    if (!content.startsWith ("="))
+    {
+        this.mValues[key] = content;
+    }
+    else
+    {
+        this.mEquations[key] = content;
+        this.mValues[key]    = this.EvaluateEquation (key, content);
+    }
+
+            // Returns the key of the cell that's been updated.
+    return key;
+};
+
+Grid.prototype.SetValue = function (cell) {
+    var key = this.StoreValue (cell);
+    cell.text (this.mValues[key]);
+
+    this.UpdateReferences (key);
+};
+
 Grid.prototype.EvaluateEquation = function (cell, content) {
-    console.log ("Evaluating equation.");
     var equation = content.substr (1);      // remove the leading '=' symbol.
 
     while ((res = equation.match (/([A-Za-z]+\d+)/)))
@@ -40,27 +65,7 @@ Grid.prototype.EvaluateEquation = function (cell, content) {
     return eval (equation);
 };
 
-Grid.prototype.CalculateValue = function (cell, content) {
-            // If the content doesn't start with an '=' sign, assume it's a value.
-    var key = this.GetId (cell);
-
-    if (!content.startsWith ("="))
-    {
-        console.log ("Storing value: %s", content);
-        this.mValues[key] = content;
-        return content;
-    }
-    else
-    {
-        console.log ("Storing equation: %s", content);
-        this.mEquations[key] = content;
-        return this.EvaluateEquation (key, content);
-    }
-};
-
-Grid.prototype.UpdateReferences = function (modifiedCell) {
-    var key = this.GetId (modifiedCell);
-
+Grid.prototype.UpdateReferences = function (key) {
     var references = this.mReferences[key];
 
             // If we don't have any references to the caller, return early.
@@ -72,19 +77,21 @@ Grid.prototype.UpdateReferences = function (modifiedCell) {
     references.forEach (id => {
         var equation = this.mEquations[id];
         if (!equation)
-        {
-            console.error ("Invalid in-memory value for cell: %s", id);
             return;
-        }
 
         var cell = $("#" + id);
         if (!cell)
-        {
-            console.error ("Unable to update cell, invalid id: %s", id);
             return;
-        }
 
-        var val = this.CalculateValue (cell, equation);
+        var val = this.EvaluateEquation (key, equation);
         cell.text (val);
     });
 }
+
+Grid.prototype.RefreshValues = function () {
+        // Iterate over stashed values and insert into grid
+    $.each (this.mValues, function (key, value) {
+        var cell  = $("#" + key);
+        cell.text (value);
+    });
+};
