@@ -50,8 +50,6 @@ Grid.prototype.SetValue = function (cell) {
 Grid.prototype.EvaluateEquation = function (cell, content) {
     var equation = this.NormaliseEquation (content);
 
-    console.info ("Equation: %s", equation);
-
     while ((res = equation.match (/([A-Za-z]+\d+)/)))
     {
         var key   = res[1].toUpperCase ();
