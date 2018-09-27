@@ -12,7 +12,14 @@ Grid.prototype.GetId = function (cell) {
         return cell
     
     return cell.attr ("id");
-}
+};
+
+Grid.prototype.NormaliseEquation = function (equation) {
+    var result = equation.substr (1);   // Remove leading '='.
+    result     = result.toUpperCase (); // Normalise to upper case
+    result     = result.replace (/\s*/g, "");    // Remove all whitespace.
+    return result;
+};
 
 Grid.prototype.StoreValue = function (cell) {
             // Get the cell's id and content
@@ -41,7 +48,7 @@ Grid.prototype.SetValue = function (cell) {
 };
 
 Grid.prototype.EvaluateEquation = function (cell, content) {
-    var equation = content.substr (1);      // remove the leading '=' symbol.
+    var equation = this.NormaliseEquation (content);
 
     while ((res = equation.match (/([A-Za-z]+\d+)/)))
     {
