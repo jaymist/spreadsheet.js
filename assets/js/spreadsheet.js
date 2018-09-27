@@ -128,7 +128,6 @@ function CellMouseClick () {
     cell.focus ();
 
     cell.on ("keydown", function (e) {
-        console.info ("In keydown handler");
         var keyCode = e.which;
 
         if (keyCode != 13)
@@ -139,7 +138,6 @@ function CellMouseClick () {
     });
 
     cell.on ("keyup", function () {
-        console.info ("In keyup handler");
         grid.StoreValue (cell);
     });
 };

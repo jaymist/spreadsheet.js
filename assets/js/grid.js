@@ -1,3 +1,5 @@
+var gCharCodeA  = "A".charCodeAt (); // Comes out as '65'
+
 function Grid () {
             // Map of cells to literal values
     this.mValues     = {};
@@ -12,7 +14,30 @@ Grid.prototype.GetId = function (cell) {
         return cell
     
     return cell.attr ("id");
-}
+};
+
+Grid.prototype.ExpandCellRange = function (cells) {
+    var str = "";
+    while ((res = cells.match (/([A-Z]+)(\d+):([A-Z]+)(\d+)/)))
+    {
+        var startCharCode = res[1].charCodeAt ();
+        var startNum      = res[2];
+        var endCharCode   = res[3].charCodeAt ();
+        var endNum        = res[4];
+
+                // if the start and end char differ, then increment the letters
+        if (startCharCode != endCharCode)
+        {
+            for (i = startCharCode; i < endCharCode; ++i)
+            {
+                str += String.fromCharCode (i) + startNum + ", ";
+            }
+
+            str += res[3] + res[4];
+        }
+    }
+    return str;
+};
 
 Grid.prototype.StoreValue = function (cell) {
             // Get the cell's id and content
@@ -26,7 +51,7 @@ Grid.prototype.StoreValue = function (cell) {
     else
     {
         this.mEquations[key] = content;
-        this.mValues[key]    = this.EvaluateEquation (key, content);
+        this.mValues[key]    = content;
     }
 
             // Returns the key of the cell that's been updated.
@@ -34,16 +59,31 @@ Grid.prototype.StoreValue = function (cell) {
 };
 
 Grid.prototype.SetValue = function (cell) {
-    var key = this.StoreValue (cell);
+    var key           = this.StoreValue (cell);
+    this.mValues[key] = this.EvaluateEquation (key, this.mValues[key]);
+    
     cell.text (this.mValues[key]);
 
     this.UpdateReferences (key);
 };
 
-Grid.prototype.EvaluateEquation = function (cell, content) {
-    var equation = content.substr (1);      // remove the leading '=' symbol.
+Grid.prototype.SumValues = function (equation)
+{
+    var cells = this.ExpandCellRange (equation);
+    return equation;
+};
 
-    while ((res = equation.match (/([A-Za-z]+\d+)/)))
+Grid.prototype.EvaluateEquation = function (cell, content) {
+    var equation = content.substr (1).toUpperCase ();      // remove the leading '=' symbol.
+
+            // If we match something that looks like '=SUM (', attempt to sum
+            // the referenced cells.
+    if (equation.match (/SUM\s*\(/))
+    {
+        equation = this.SumValues (equation);
+    }
+
+    while ((res = equation.match (/([A-Z]+\d+)/)))
     {
         var key   = res[1].toUpperCase ();
         var value = $("#" + key).text ();
