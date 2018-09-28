@@ -105,9 +105,9 @@ Grid.prototype.EvaluateEquation = function (cell, content) {
 
     console.log ("Expanded equation: %s", equation);
 
-    while ((res = equation.match (/([A-Za-z]+\d+)/)))
+    while ((res = equation.match (/([A-Z]+\d+)/)))
     {
-        var key   = res[1].toUpperCase ();
+        var key   = res[1];
         var value = $("#" + key).text ();
 
         if (!value)
@@ -125,7 +125,7 @@ Grid.prototype.EvaluateEquation = function (cell, content) {
     }
 
             // If the equation contains a sum function, replace it with the expanded values.
-    if ((res = equation.match (gSumRegex)))
+    if (equation.search (gSumRegex) >= 0)
         equation = this.ExpandSumFunction (equation);
 
     return eval (equation);
