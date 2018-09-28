@@ -73,12 +73,11 @@ Grid.prototype.ToNumArray = function (strVals) {
 Grid.prototype.ExpandSumFunction = function (equation) {
     while ((res = equation.match (gSumRegex)))
     {
-        var origStr = res[0];
-        var sumEqtn = res[1];
+        var origStr   = res[0];
+        var numArr    = this.ToNumArray (res[1]);
+        var sumResult = numArr.reduce ((a,b) => a + b, 0);
 
-        sumEqtn = sumEqtn.replace (/,/g, "+");
-
-        equation = equation.replace (origStr, "(" + sumEqtn + ")");
+        equation = equation.replace (origStr, sumResult);
     }
 
     return equation;
@@ -127,8 +126,6 @@ Grid.prototype.SetValue = function (cell) {
 Grid.prototype.EvaluateEquation = function (cell, content) {
     var equation = this.NormaliseEquation (content);
     equation     = this.ExpandRanges (equation);
-
-    console.log ("Expanded equation: %s", equation);
 
     while ((res = equation.match (/([A-Z]+\d+)/)))
     {
