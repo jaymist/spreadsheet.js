@@ -1,3 +1,5 @@
+var gSumRegex = new RegExp (/SUM\((.*?)\)/)
+
 function Grid () {
             // Map of cells to literal values
     this.mValues     = {};
@@ -21,7 +23,56 @@ Grid.prototype.NormaliseEquation = function (equation) {
     return result;
 };
 
-Grid.prototype.StoreValue = function (cell) {
+Grid.prototype.ExpandRanges = function (equation) {
+    while ((res = equation.match (/([A-Z]+)(\d+):([A-Z]+)(\d+)/)))
+    {
+        var matchStr    = res[0];
+        var startChar   = res[1];
+        var startNum    = res[2];
+        var endNum      = res[4];
+
+                // If the numbers don't match; i.e. it's A1:A10
+                // let's work our way up through the numbers.
+        if (startNum != endNum)
+        {
+            var start = startNum;
+            var end   = endNum;
+            var str   = "";
+
+                    // If the range is backwards (i.e. A10:A1), we need to swap
+                    // the start and end. 
+            if (endNum < startNum)
+            {
+                start = endNum;
+                end   = startNum;
+            }
+
+            for (i = start; i < end; ++i)
+                str     += startChar + i + ",";
+
+            str     += startChar + i;
+        }
+
+        equation = equation.replace (matchStr, str);
+    }
+    return equation;
+};
+
+Grid.prototype.ExpandSumFunction = function (equation) {
+    while ((res = equation.match (gSumRegex)))
+    {
+        var origStr = res[0];
+        var sumEqtn = res[1];
+
+        sumEqtn = sumEqtn.replace (/,/g, "+");
+
+        equation = equation.replace (origStr, "(" + sumEqtn + ")");
+    }
+
+    return equation;
+};
+
+Grid.prototype.StoreValue = function (cell, evalEqtn = false) {
             // Get the cell's id and content
     var key     = this.GetId (cell);
     var content = cell.text ();
@@ -33,7 +84,8 @@ Grid.prototype.StoreValue = function (cell) {
     else
     {
         this.mEquations[key] = content;
-        this.mValues[key]    = this.EvaluateEquation (key, content);
+        if (evalEqtn)
+            this.mValues[key]    = this.EvaluateEquation (key, content);
     }
 
             // Returns the key of the cell that's been updated.
@@ -41,7 +93,7 @@ Grid.prototype.StoreValue = function (cell) {
 };
 
 Grid.prototype.SetValue = function (cell) {
-    var key = this.StoreValue (cell);
+    var key = this.StoreValue (cell, true);
     cell.text (this.mValues[key]);
 
     this.UpdateReferences (key);
@@ -49,6 +101,13 @@ Grid.prototype.SetValue = function (cell) {
 
 Grid.prototype.EvaluateEquation = function (cell, content) {
     var equation = this.NormaliseEquation (content);
+    equation     = this.ExpandRanges (equation);
+
+    console.log ("Expanded equation: %s", equation);
+
+            // If the equation contains a sum function, replace it with the expanded values.
+    if ((res = equation.match (gSumRegex)))
+        equation = this.ExpandSumFunction (equation);
 
     while ((res = equation.match (/([A-Za-z]+\d+)/)))
     {
