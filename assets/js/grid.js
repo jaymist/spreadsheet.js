@@ -59,6 +59,17 @@ Grid.prototype.ExpandRanges = function (equation) {
     return equation;
 };
 
+Grid.prototype.ToNumArray = function (strVals) {
+    var strArr = strVals.split (",");
+    var numArr = [];
+
+    strArr.forEach (strVal => {
+        numArr.push (parseFloat (strVal));
+    });
+
+    return numArr;
+};
+
 Grid.prototype.ExpandSumFunction = function (equation) {
     while ((res = equation.match (gSumRegex)))
     {
@@ -76,15 +87,9 @@ Grid.prototype.ExpandSumFunction = function (equation) {
 Grid.prototype.MaxFunc = function (equation) {
     while ((res = equation.match (gMaxRegex)))
     {
-        var origStr   = res[0];
-        var valStrArr = res[1].split (",");
-        var valNumArr = [];
-
-        valStrArr.forEach (valStr => {
-            valNumArr.push (parseFloat (valStr));
-        });
-
-        var maxVal = Math.max (...valNumArr);
+        var origStr = res[0];
+        var numArr  = this.ToNumArray (res[1]);
+        var maxVal = Math.max (...numArr);
 
         equation = equation.replace (origStr, maxVal);
     }
