@@ -1,4 +1,4 @@
-var gSumRegex = new RegExp (/SUM\((.*?)\)/)
+var gSumRegex = new RegExp (/SUM\((.*?)\)/);
 
 function Grid () {
             // Map of cells to literal values
@@ -105,10 +105,6 @@ Grid.prototype.EvaluateEquation = function (cell, content) {
 
     console.log ("Expanded equation: %s", equation);
 
-            // If the equation contains a sum function, replace it with the expanded values.
-    if ((res = equation.match (gSumRegex)))
-        equation = this.ExpandSumFunction (equation);
-
     while ((res = equation.match (/([A-Za-z]+\d+)/)))
     {
         var key   = res[1].toUpperCase ();
@@ -127,6 +123,10 @@ Grid.prototype.EvaluateEquation = function (cell, content) {
                 // Update equation, replacing cell id with cell value;
         equation = equation.replace (res[1], value);
     }
+
+            // If the equation contains a sum function, replace it with the expanded values.
+    if ((res = equation.match (gSumRegex)))
+        equation = this.ExpandSumFunction (equation);
 
     return eval (equation);
 };
