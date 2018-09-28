@@ -1,3 +1,5 @@
+var gSumRegex = new RegExp (/SUM\((.*?)\)/)
+
 function Grid () {
             // Map of cells to literal values
     this.mValues     = {};
@@ -19,6 +21,21 @@ Grid.prototype.NormaliseEquation = function (equation) {
     result     = result.toUpperCase (); // Normalise to upper case
     result     = result.replace (/\s*/g, "");    // Remove all whitespace.
     return result;
+};
+
+Grid.prototype.ExpandSumFunction = function (equation) {
+    while ((res = equation.match (gSumRegex)))
+    {
+        var origStr = res[0];
+        var sumEqtn = res[1];
+
+        sumEqtn = sumEqtn.replace (/,/g, "+");
+
+        console.info ("Equation: %s", sumEqtn);
+        equation = equation.replace (origStr, "(" + sumEqtn + ")");
+    }
+
+    return equation;
 };
 
 Grid.prototype.ExpandRanges = function (equation) {
@@ -73,7 +90,7 @@ Grid.prototype.StoreValue = function (cell, evalEqtn = false) {
     {
         this.mEquations[key] = content;
         if (evalEqtn)
-        this.mValues[key]    = this.EvaluateEquation (key, content);
+            this.mValues[key]    = this.EvaluateEquation (key, content);
     }
 
             // Returns the key of the cell that's been updated.
@@ -92,6 +109,10 @@ Grid.prototype.EvaluateEquation = function (cell, content) {
     equation     = this.ExpandRanges (equation);
 
     console.log ("Expanded equation: %s", equation);
+
+            // If the equation contains a sum function, replace it with the expanded values.
+    if ((res = equation.match (gSumRegex)))
+        equation = this.ExpandSumFunction (equation);
 
     while ((res = equation.match (/([A-Za-z]+\d+)/)))
     {
