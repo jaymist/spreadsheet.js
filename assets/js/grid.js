@@ -23,21 +23,6 @@ Grid.prototype.NormaliseEquation = function (equation) {
     return result;
 };
 
-Grid.prototype.ExpandSumFunction = function (equation) {
-    while ((res = equation.match (gSumRegex)))
-    {
-        var origStr = res[0];
-        var sumEqtn = res[1];
-
-        sumEqtn = sumEqtn.replace (/,/g, "+");
-
-        console.info ("Equation: %s", sumEqtn);
-        equation = equation.replace (origStr, "(" + sumEqtn + ")");
-    }
-
-    return equation;
-};
-
 Grid.prototype.ExpandRanges = function (equation) {
     while ((res = equation.match (/([A-Z]+)(\d+):([A-Z]+)(\d+)/)))
     {
@@ -74,6 +59,20 @@ Grid.prototype.ExpandRanges = function (equation) {
 
         equation = equation.replace (matchStr, str);
     }
+    return equation;
+};
+
+Grid.prototype.ExpandSumFunction = function (equation) {
+    while ((res = equation.match (gSumRegex)))
+    {
+        var origStr = res[0];
+        var sumEqtn = res[1];
+
+        sumEqtn = sumEqtn.replace (/,/g, "+");
+
+        equation = equation.replace (origStr, "(" + sumEqtn + ")");
+    }
+
     return equation;
 };
 
