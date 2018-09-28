@@ -1,5 +1,6 @@
 var gSumRegex = new RegExp (/SUM\((.*?)\)/);
 var gMaxRegex = new RegExp (/MAX\((.*?)\)/);
+var gMinRegex = new RegExp (/MIN\((.*?)\)/);
 
 function Grid () {
             // Map of cells to literal values
@@ -59,15 +60,25 @@ Grid.prototype.ExpandRanges = function (equation) {
     return equation;
 };
 
-Grid.prototype.ExpandSumFunction = function (equation) {
+Grid.prototype.ToNumArray = function (strVals) {
+    var strArr = strVals.split (",");
+    var numArr = [];
+
+    strArr.forEach (strVal => {
+        numArr.push (parseFloat (strVal));
+    });
+
+    return numArr;
+};
+
+Grid.prototype.SumFunc = function (equation) {
     while ((res = equation.match (gSumRegex)))
     {
-        var origStr = res[0];
-        var sumEqtn = res[1];
+        var origStr   = res[0];
+        var numArr    = this.ToNumArray (res[1]);
+        var sumResult = numArr.reduce ((a,b) => a + b, 0);
 
-        sumEqtn = sumEqtn.replace (/,/g, "+");
-
-        equation = equation.replace (origStr, "(" + sumEqtn + ")");
+        equation = equation.replace (origStr, sumResult);
     }
 
     return equation;
@@ -76,17 +87,24 @@ Grid.prototype.ExpandSumFunction = function (equation) {
 Grid.prototype.MaxFunc = function (equation) {
     while ((res = equation.match (gMaxRegex)))
     {
-        var origStr   = res[0];
-        var valStrArr = res[1].split (",");
-        var valNumArr = [];
-
-        valStrArr.forEach (valStr => {
-            valNumArr.push (parseFloat (valStr));
-        });
-
-        var maxVal = Math.max (...valNumArr);
+        var origStr = res[0];
+        var numArr  = this.ToNumArray (res[1]);
+        var maxVal = Math.max (...numArr);
 
         equation = equation.replace (origStr, maxVal);
+    }
+
+    return equation;
+};
+
+Grid.prototype.MinFunc = function (equation) {
+    while ((res = equation.match (gMinRegex)))
+    {
+        var origStr = res[0];
+        var numArr  = this.ToNumArray (res[1]);
+        var minVal = Math.min (...numArr);
+
+        equation = equation.replace (origStr, minVal);
     }
 
     return equation;
@@ -123,8 +141,6 @@ Grid.prototype.EvaluateEquation = function (cell, content) {
     var equation = this.NormaliseEquation (content);
     equation     = this.ExpandRanges (equation);
 
-    console.log ("Expanded equation: %s", equation);
-
     while ((res = equation.match (/([A-Z]+\d+)/)))
     {
         var key   = res[1];
@@ -146,10 +162,13 @@ Grid.prototype.EvaluateEquation = function (cell, content) {
 
             // If the equation contains a sum function, replace it with the expanded values.
     if (equation.search (gSumRegex) >= 0)
-        equation = this.ExpandSumFunction (equation);
+        equation = this.SumFunc (equation);
 
     if (equation.search (gMaxRegex) >= 0)
         equation = this.MaxFunc (equation);
+
+    if (equation.search (gMinRegex) >= 0)
+        equation = this.MinFunc (equation);
 
     return eval (equation);
 };
