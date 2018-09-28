@@ -70,7 +70,7 @@ Grid.prototype.ToNumArray = function (strVals) {
     return numArr;
 };
 
-Grid.prototype.ExpandSumFunction = function (equation) {
+Grid.prototype.SumFunc = function (equation) {
     while ((res = equation.match (gSumRegex)))
     {
         var origStr   = res[0];
@@ -148,7 +148,7 @@ Grid.prototype.EvaluateEquation = function (cell, content) {
 
             // If the equation contains a sum function, replace it with the expanded values.
     if (equation.search (gSumRegex) >= 0)
-        equation = this.ExpandSumFunction (equation);
+        equation = this.SumFunc (equation);
 
     if (equation.search (gMaxRegex) >= 0)
         equation = this.MaxFunc (equation);
