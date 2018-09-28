@@ -48,13 +48,9 @@ Grid.prototype.ExpandRanges = function (equation) {
             }
 
             for (i = start; i < end; ++i)
-            {
-                var cell = $("#" + startChar + i);
-                str     += cell.text () + ",";
-            }
+                str     += startChar + i + ",";
 
-            var cell = $("#" + startChar + endNum);
-            str     += cell.text ();
+            str     += startChar + i;
         }
 
         equation = equation.replace (matchStr, str);
