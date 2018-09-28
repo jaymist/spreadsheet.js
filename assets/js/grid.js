@@ -1,6 +1,7 @@
 var gSumRegex = new RegExp (/SUM\((.*?)\)/);
 var gMaxRegex = new RegExp (/MAX\((.*?)\)/);
 var gMinRegex = new RegExp (/MIN\((.*?)\)/);
+var gAvgRegex = new RegExp (/AVG\((.*?)\)/);
 
 function Grid () {
             // Map of cells to literal values
@@ -97,6 +98,31 @@ Grid.prototype.MaxFunc = function (equation) {
     return equation;
 };
 
+Grid.prototype.AvgFunc = function (equation) {
+    while ((res = equation.match (gAvgRegex)))
+    {
+        var origStr = res[0];
+        var numArr  = this.ToNumArray (res[1]);
+        var sum     = 0;
+        var count   = 0;
+        var avg     = 0;
+
+        numArr.forEach (num => {
+            sum += num;
+            if (num > 0)
+                ++count;
+        });
+
+        if (count > 0)
+            avg = sum/count;
+
+        console.info ("Replacing: %s\nSum: %d, count: %d, average: %d", origStr, sum, count, avg);
+        equation = equation.replace (origStr, avg);
+    }
+
+    return equation;
+};
+
 Grid.prototype.MinFunc = function (equation) {
     while ((res = equation.match (gMinRegex)))
     {
@@ -170,7 +196,10 @@ Grid.prototype.EvaluateEquation = function (cell, content) {
     if (equation.search (gMinRegex) >= 0)
         equation = this.MinFunc (equation);
 
-    return eval (equation);
+    if (equation.search (gAvgRegex) >= 0)
+        equation = this.AvgFunc (equation);
+
+        return eval (equation);
 };
 
 Grid.prototype.UpdateReferences = function (key) {
