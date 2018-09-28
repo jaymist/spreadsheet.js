@@ -1,4 +1,5 @@
-var gSumRegex = new RegExp (/SUM\((.*?)\)/)
+var gSumRegex = new RegExp (/SUM\((.*?)\)/);
+var gMaxRegex = new RegExp (/MAX\((.*?)\)/);
 
 function Grid () {
             // Map of cells to literal values
@@ -72,6 +73,25 @@ Grid.prototype.ExpandSumFunction = function (equation) {
     return equation;
 };
 
+Grid.prototype.MaxFunc = function (equation) {
+    while ((res = equation.match (gMaxRegex)))
+    {
+        var origStr   = res[0];
+        var valStrArr = res[1].split (",");
+        var valNumArr = [];
+
+        valStrArr.forEach (valStr => {
+            valNumArr.push (parseFloat (valStr));
+        });
+
+        var maxVal = Math.max (...valNumArr);
+
+        equation = equation.replace (origStr, maxVal);
+    }
+
+    return equation;
+};
+
 Grid.prototype.StoreValue = function (cell, evalEqtn = false) {
             // Get the cell's id and content
     var key     = this.GetId (cell);
@@ -105,13 +125,9 @@ Grid.prototype.EvaluateEquation = function (cell, content) {
 
     console.log ("Expanded equation: %s", equation);
 
-            // If the equation contains a sum function, replace it with the expanded values.
-    if ((res = equation.match (gSumRegex)))
-        equation = this.ExpandSumFunction (equation);
-
-    while ((res = equation.match (/([A-Za-z]+\d+)/)))
+    while ((res = equation.match (/([A-Z]+\d+)/)))
     {
-        var key   = res[1].toUpperCase ();
+        var key   = res[1];
         var value = $("#" + key).text ();
 
         if (!value)
@@ -127,6 +143,13 @@ Grid.prototype.EvaluateEquation = function (cell, content) {
                 // Update equation, replacing cell id with cell value;
         equation = equation.replace (res[1], value);
     }
+
+            // If the equation contains a sum function, replace it with the expanded values.
+    if (equation.search (gSumRegex) >= 0)
+        equation = this.ExpandSumFunction (equation);
+
+    if (equation.search (gMaxRegex) >= 0)
+        equation = this.MaxFunc (equation);
 
     return eval (equation);
 };
