@@ -60,7 +60,7 @@ Grid.prototype.ExpandRanges = function (equation) {
     return equation;
 };
 
-Grid.prototype.StoreValue = function (cell) {
+Grid.prototype.StoreValue = function (cell, evalEqtn = false) {
             // Get the cell's id and content
     var key     = this.GetId (cell);
     var content = cell.text ();
@@ -72,6 +72,7 @@ Grid.prototype.StoreValue = function (cell) {
     else
     {
         this.mEquations[key] = content;
+        if (evalEqtn)
         this.mValues[key]    = this.EvaluateEquation (key, content);
     }
 
@@ -80,7 +81,7 @@ Grid.prototype.StoreValue = function (cell) {
 };
 
 Grid.prototype.SetValue = function (cell) {
-    var key = this.StoreValue (cell);
+    var key = this.StoreValue (cell, true);
     cell.text (this.mValues[key]);
 
     this.UpdateReferences (key);
