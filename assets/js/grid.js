@@ -1,5 +1,6 @@
 var gSumRegex = new RegExp (/SUM\((.*?)\)/);
 var gMaxRegex = new RegExp (/MAX\((.*?)\)/);
+var gMinRegex = new RegExp (/MIN\((.*?)\)/);
 
 function Grid () {
             // Map of cells to literal values
@@ -96,6 +97,19 @@ Grid.prototype.MaxFunc = function (equation) {
     return equation;
 };
 
+Grid.prototype.MinFunc = function (equation) {
+    while ((res = equation.match (gMinRegex)))
+    {
+        var origStr = res[0];
+        var numArr  = this.ToNumArray (res[1]);
+        var minVal = Math.min (...numArr);
+
+        equation = equation.replace (origStr, minVal);
+    }
+
+    return equation;
+};
+
 Grid.prototype.StoreValue = function (cell, evalEqtn = false) {
             // Get the cell's id and content
     var key     = this.GetId (cell);
@@ -152,6 +166,9 @@ Grid.prototype.EvaluateEquation = function (cell, content) {
 
     if (equation.search (gMaxRegex) >= 0)
         equation = this.MaxFunc (equation);
+
+    if (equation.search (gMinRegex) >= 0)
+        equation = this.MinFunc (equation);
 
     return eval (equation);
 };
