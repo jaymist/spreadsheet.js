@@ -128,9 +128,27 @@ function CellMouseClick () {
     cell.focus ();
 
     cell.on ("keydown", function (e) {
-        var keyCode = e.which;
+                // Ctrl key was held down whilst the event fired.
+        if (e.ctrlKey)
+        {
+            console.info ("e.key: " + e.key);
+            if (e.key == "b")
+                console.info ("[un]bold text in cell.");
+                // BoldCell (cell);
+            else if (e.key == "i")
+                console.info ("[un]italic text in cell.");
+            // ItaliciseCell (cell);
+            else if (e.key == "u")
+                console.info ("[un]underline text in cell.");
+                // UnderlineCell (cell);
+            else
+                return;
 
-        if (keyCode != 13)
+            e.preventDefault ();
+            return;
+        }
+
+        if (e.key != "Enter")
             return;
         
         cell.removeAttr ("contenteditable");
