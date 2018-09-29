@@ -101,6 +101,34 @@ function InsertTableBody (parent) {
     }
 }
 
+function FormatCell (key, cell) {
+    if (key == "b")
+    {
+        if (cell.css ("font-weight") == 700)    // 700 = bold
+            cell.css ("font-weight", "normal");
+        else
+            cell.css ("font-weight", "bold");
+    }
+    else if (key == "i")
+    {
+        if (cell.css ("font-style") == "italic")
+            cell.css ("font-style", "normal");
+        else
+            cell.css ("font-style", "italic");
+    }
+    else if (key == "u")
+    {
+        if (cell.css ("text-decoration-line") == "underline")
+            cell.css ("text-decoration-line", "none");
+        else
+            cell.css ("text-decoration-line", "underline");
+    }
+    else
+        return false;
+
+    return true;
+};
+
 //-----------------------------------------------------------------------------
 // CALLBACKS
 // Callbacks for events on the spreadsheet.
@@ -128,9 +156,16 @@ function CellMouseClick () {
     cell.focus ();
 
     cell.on ("keydown", function (e) {
-        var keyCode = e.which;
+                // Ctrl key was held down whilst the event fired.
+        if (e.ctrlKey)
+        {
+            if (FormatCell (e.key, cell))
+                e.preventDefault ();
 
-        if (keyCode != 13)
+            return;
+        }
+
+        if (e.key != "Enter")
             return;
         
         cell.removeAttr ("contenteditable");
